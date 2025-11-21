@@ -9,6 +9,21 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@univerjs/core": "^0.12.0",
+    "@univerjs/design": "^0.12.0",
+    "@univerjs/docs": "^0.12.0",
+    "@univerjs/docs-ui": "^0.12.0",
+    "@univerjs/engine-formula": "^0.12.0",
+    "@univerjs/engine-render": "^0.12.0",
+    "@univerjs/sheets": "^0.12.0",
+    "@univerjs/sheets-formula": "^0.12.0",
+    "@univerjs/sheets-formula-ui": "^0.12.0",
+    "@univerjs/sheets-numfmt": "^0.12.0",
+    "@univerjs/sheets-numfmt-ui": "^0.12.0",
+    "@univerjs/sheets-ui": "^0.12.0",
+    "@univerjs/slides": "^0.12.0",
+    "@univerjs/slides-ui": "^0.12.0",
+    "@univerjs/ui": "^0.12.0",
     "next": "16.0.3",
     "react": "19.2.0",
     "react-dom": "19.2.0"
