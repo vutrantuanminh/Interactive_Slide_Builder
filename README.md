@@ -18,8 +18,10 @@ Toàn bộ nội dung slide (biến `SLIDE_DATA` trong UniverJS) được lưu v
 ### 3.1. Biến môi trường
 Tạo file `.env.local`:
 ```bash
-NEXT_PUBLIC_SUPABASE_URL=[https://your-project-ref.supabase.co](https://your-project-ref.supabase.co)
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+
+NEXT_PUBLIC_SUPABASE_URL=https://nibgukzlvdfliuntsxxz.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5pYmd1a3psdmRmbGl1bnRzeHh6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4MjcxODgsImV4cCI6MjA3OTQwMzE4OH0.pyKRTdLlGqfzqOuXnjWK4XI2bx-Q5eDe8jkVxZfNSSQ
+
 ```
 
 ### 3.2. Cài đặt Client
