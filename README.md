@@ -1,36 +1,77 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Slide Builder - Developer Guide
 
-## Getting Started
+## 1. Tech Stack
+- **Frontend:** Next.js 14+ (App Router)
+- **Core Editor:** UniverJS
+- **Backend/Database:** Supabase (PostgreSQL, Auth, Storage, Realtime)
+- **Styling:** Tailwind CSS
 
-First, run the development server:
+## 2. Kiến trúc Dữ liệu (The "JSON Strategy")
+Chúng ta không lưu từng shape/text vào các bảng SQL riêng biệt.
+Toàn bộ nội dung slide (biến `SLIDE_DATA` trong UniverJS) được lưu vào cột `content` (kiểu `JSONB`) trong bảng `projects`.
 
+**Luồng dữ liệu:**
+`Frontend (Univer Instance) <-> JSON <-> Supabase (Project Table)`
+
+## 3. Setup Dự án
+
+### 3.1. Biến môi trường
+Tạo file `.env.local`:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+NEXT_PUBLIC_SUPABASE_URL=[https://your-project-ref.supabase.co](https://your-project-ref.supabase.co)
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 3.2. Cài đặt Client
+```bash
+npm install @supabase/supabase-js @supabase/ssr
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 4. Hướng dẫn Implement các tính năng chính
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### A. Authentication (Đăng nhập/Đăng ký)
+Không cần gọi API backend tự viết. Sử dụng trực tiếp Supabase Client ở Frontend.
+```javascript
+const supabase = createClientComponentClient()
+// Đăng nhập Github
+await supabase.auth.signInWithOAuth({ provider: 'github' })
+// Lấy user hiện tại
+const { data: { user } } = await supabase.auth.getUser()
+```
 
-## Learn More
+### B. Load Dự án (Vào trang Editor)
+```javascript
+// Lấy nội dung JSON từ Supabase
+const { data, error } = await supabase
+  .from('projects')
+  .select('content')
+  .eq('id', projectId)
+  .single()
 
-To learn more about Next.js, take a look at the following resources:
+// Nạp vào UniverJS
+if (data) {
+  univer.createUnit(UniverInstanceType.UNIVER_SLIDE, data.content);
+}
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### C. Lưu Dự án (Save)
+```javascript
+// 1. Trích xuất JSON từ UniverJS
+const currentData = univerInstance.save(); 
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+// 2. Gửi lên Supabase
+await supabase
+  .from('projects')
+  .update({ content: currentData, updated_at: new Date() })
+  .eq('id', projectId)
+```
 
-## Deploy on Vercel
+### D. Upload Ảnh
+1. Upload file lên Supabase Storage bucket `slide-assets`.
+2. Lấy `publicUrl`.
+3. Chèn `publicUrl` vào UniverJS image element.
+4. (Optional) Lưu metadata vào bảng `assets`.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 5. Quy tắc chung
+- **RLS (Bảo mật):** Database đã cài sẵn rule. User A không thể query project của User B. Frontend không cần lo filter `where user_id = ...` quá kỹ, Supabase tự chặn.
+- **Realtime:** Nếu cần tính năng collab (nhiều người sửa), hãy bật `supabase.channel` lắng nghe bảng `projects`.
